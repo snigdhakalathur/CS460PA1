@@ -23,7 +23,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '#PASSWORD'
+app.config['MYSQL_DATABASE_PASSWORD'] = '#Password'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -173,6 +173,12 @@ def getUsersPhotosByTag(uid, tagDescription):
 	cursor.execute(sql)
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+#GET THE POPULAR TAGS
+def getAllTags():
+	cursor = conn.cursor()
+	cursor.execute("SELECT taggedWith.tagDescription FROM taggedWith GROUP BY taggedwith.tagDescription ORDER BY COUNT(*) DECS LIMIT 1")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
 @app.route('/profile')
 @flask_login.login_required
 def protected():
@@ -216,6 +222,14 @@ def viewUsersTags():
 		tagDescription = request.args.get('tag')
 		return render_template('hello.html', name=flask_login.current_user.id, message='All Photos By Tag', photos=getUsersPhotosByTag(flask_login.current_user.id, tagDescription),base64=base64)
 
+#GETTING MOST POPULAR TAG
+@app.route('/viewPopularTags', methods=['GET'])
+@flask_login.login_required
+def viewPopularTag():
+    if request.method == 'GET':
+        return render_template('hello.html', name=flask_login.current_user.id, message = getAllTags(),base64=base64)
+		
+        
 
 #default page
 @app.route("/", methods=['GET'])
