@@ -176,7 +176,7 @@ def getUsersPhotosByTag(uid, tagDescription):
 #GET THE POPULAR TAGS
 def getAllTags():
 	cursor = conn.cursor()
-	cursor.execute("SELECT taggedWith.tagDescription FROM taggedWith GROUP BY taggedwith.tagDescription ORDER BY COUNT(*) DECS LIMIT 1")
+	cursor.execute("SELECT taggedWith.tagDescription FROM taggedWith GROUP BY taggedwith.tagDescription ORDER BY COUNT(*) DESC LIMIT 1")
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 @app.route('/profile')
