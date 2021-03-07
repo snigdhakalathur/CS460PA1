@@ -23,7 +23,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'type password'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'enter password'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -179,6 +179,12 @@ def getAllTags():
 	cursor.execute("SELECT taggedWith.tagDescription FROM taggedWith GROUP BY taggedwith.tagDescription ORDER BY COUNT(*) DESC LIMIT 1")
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+#GET ALL THE PICTURES
+def getPictures():
+    cursor = conn.cursor()
+    cursor.execute("SELECT Pictures.imgdata, Pictures.picture_id, Pictures.caption FROM Pictures")
+    return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
 @app.route('/profile')
 @flask_login.login_required
 def protected():
@@ -241,7 +247,13 @@ def createAlbum():
 	#The method is GET so we return a  HTML form to upload the a photo.
     else:
         return render_template('makeAlbum.html')
-#end photo uploading code
+    
+@app.route('/viewPhotos', methods=['GET'])
+def viewPhotos():
+    if request.method == 'GET':
+        return render_template('hello.html', message='Here are all the photos', photos=getPictures(),base64=base64)
+    
+
 
 #default page
 @app.route("/", methods=['GET'])
