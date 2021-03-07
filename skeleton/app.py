@@ -23,7 +23,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '#Password'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'type password'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -229,7 +229,19 @@ def viewPopularTag():
     if request.method == 'GET':
         return render_template('hello.html', name=flask_login.current_user.id, message = getAllTags(),base64=base64)
 		
-        
+@app.route('/createAlbum', methods=['POST', 'GET'])
+@flask_login.login_required
+def createAlbum():
+    if request.method == 'POST':
+        albumName = request.form.get('albumName')
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO Albums (albumName) VALUES ('{0}')".format(albumName))
+        conn.commit()
+        return render_template('hello.html', name=flask_login.current_user.id, message='Album created!')
+	#The method is GET so we return a  HTML form to upload the a photo.
+    else:
+        return render_template('makeAlbum.html')
+#end photo uploading code
 
 #default page
 @app.route("/", methods=['GET'])
