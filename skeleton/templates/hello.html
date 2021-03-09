@@ -14,7 +14,10 @@
     {% for photo in photos %}
 
         <li>{{photo[2]}}<br>
-        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}' width='600'/></li>
+        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}' width='600'/>
+        <a href='/like?photoID={{photo[1]}}'>LIKE</a>
+        <a href='/deletePhoto?photoID={{photo[1]}}'>DELETE</a>
+      </li>
     {% endfor %}
     </ul>
 {% endif %}

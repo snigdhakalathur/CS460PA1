@@ -185,6 +185,12 @@ def getPictures():
     cursor.execute("SELECT Pictures.imgdata, Pictures.picture_id, Pictures.caption FROM Pictures")
     return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+#GET ALL THE ALBUMS
+def getAlbums():
+    cursor = conn.cursor()
+    cursor.execute("SELECT Albums.albumName FROM Albums")
+    return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
 @app.route('/profile')
 @flask_login.login_required
 def protected():
@@ -253,7 +259,29 @@ def viewPhotos():
     if request.method == 'GET':
         return render_template('hello.html', message='Here are all the photos', photos=getPictures(),base64=base64)
     
-
+@app.route('/viewAlbums', methods=['GET'])
+def viewAlbums():
+    if request.method == 'GET':
+        photos = getAlbums()
+        photos =  photos.encode("utf-8")
+        print("ALBUMS ARE ", photos)
+        return render_template('hello.html', message='Here are all the albums', photos=getAlbums(), base64=base64)
+    
+    
+@app.route('/deletePhoto', methods=['POST', 'GET'])
+@flask_login.login_required
+def deletePhoto():
+    if request.method == 'GET':
+        photoID = request.args.get('photoID')
+        cursor = conn.cursor()
+        #cursor.execute("INSERT INTO Albums (albumName) VALUES ('{0}')".format(albumName))
+        cursor.execute("DELETE FROM taggedWith WHERE taggedWith.photoID = {0}".format(photoID))
+        cursor.execute("DELETE FROM Pictures WHERE Pictures.picture_id = {0}".format(photoID))
+        conn.commit()
+        return render_template('hello.html', name=flask_login.current_user.id, message='Photo Deleted')
+	#The method is GET so we return a  HTML form to upload the a photo.
+    else:
+        return render_template('hello.html')
 
 #default page
 @app.route("/", methods=['GET'])
