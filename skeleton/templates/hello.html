@@ -28,10 +28,24 @@
   <p> Go to <a href='/profile'>profile?</a></p>
 {% endif %}
 
+{% if albums %}
+    <ul>
+    {% for album in albums %}
+
+        <li>{{album[0]}}<br>
+        <a href='/viewAlbumPictures?albumID={{album[1]}}'>VIEW</a>
+      </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+
+
 <ul>
 <li><a href='/upload'>Upload a photo</a> </li>
 <li><a href='/logout'>Logout</a></li>
 <li><a href='/'>Home</a></li>
 <li><a href='/createAlbum'>Create Album</a></li>
 <li><a href='/viewPhotos'>View Photos</a></li>
+<li><a href='/viewAlbums'>View Albums</a></li>
 </ul>

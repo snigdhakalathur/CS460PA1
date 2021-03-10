@@ -23,7 +23,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'enter password'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'enter da password'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -188,7 +188,13 @@ def getPictures():
 #GET ALL THE ALBUMS
 def getAlbums():
     cursor = conn.cursor()
-    cursor.execute("SELECT Albums.albumName FROM Albums")
+    cursor.execute("SELECT Albums.albumName, Albums.albumID FROM Albums")
+    return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+#GET ALL THE PICTURES THAT BELONG TO AN ALBUM
+def getAlbumPictures(albumID):
+    cursor = conn.cursor()
+    cursor.execute("SELECT Pictures.imgdata, Pictures.picture_id, Pictures.caption FROM Pictures WHERE Pictures.belongs = {0}".format(albumID))
     return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 @app.route('/profile')
@@ -262,10 +268,7 @@ def viewPhotos():
 @app.route('/viewAlbums', methods=['GET'])
 def viewAlbums():
     if request.method == 'GET':
-        photos = getAlbums()
-        photos =  photos.encode("utf-8")
-        print("ALBUMS ARE ", photos)
-        return render_template('hello.html', message='Here are all the albums', photos=getAlbums(), base64=base64)
+        return render_template('hello.html', message='Here are all the albums', albums=getAlbums(), base64=base64)
     
     
 @app.route('/deletePhoto', methods=['POST', 'GET'])
@@ -282,6 +285,15 @@ def deletePhoto():
 	#The method is GET so we return a  HTML form to upload the a photo.
     else:
         return render_template('hello.html')
+    
+@app.route('/viewAlbumPictures', methods=['GET'])
+def viewAlbumsPictures():
+    if request.method == 'GET':
+        albumID = request.args.get('albumID')
+    
+        #photos =  photos.encode("utf-8")
+        #print("ALBUMS ARE ", photos)
+        return render_template('hello.html', message='Here are all the photos in this album', photos=getAlbumPictures(albumID), base64=base64)
 
 #default page
 @app.route("/", methods=['GET'])
