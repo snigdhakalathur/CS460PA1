@@ -1,0 +1,56 @@
+<!-- author Snigdha Kalathur -->
+<!doctype html>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
+<title>Photoshare</title>
+
+
+<h2>Find Friends</h2>
+
+
+<div class="title">
+    <h3>Search Users:</h3>
+</div>
+<div id="content">
+    <form method="post" action="{{ url_for('friends') }}">
+        <label for="email">Enter User's Email:</label>
+        <input type="text" name="email" /><br />
+        <input type="submit" />
+    </form>
+ </div>
+
+
+ {%if notFriends%}
+    Select a friend:
+    {% for notFriend in notFriends %}
+        <li>{{notFriend[0]}} {{notFriend[1]}} {{notFriend[2]}}
+        <a href='/addFriend?userID={{notFriend[3]}}'>ADD FRIEND</a>
+        </li>
+    {% endfor %}
+ {% endif %}
+
+<h2>Current Friends</h2>
+{% if currentFriends %}
+    <u1>
+        {% for friend in currentFriends %}
+            <li>{{friend[0]}} {{friend[1]}} {{friend[2]}}</li>
+        {% endfor %}
+    </u1>
+{% endif %}
+
+
+
+
+{% if message is none %}
+  <p>You should <a href='/login'>login!</a></p>
+{% else %}
+  <p> Go to <a href='/profile'>profile?</a></p>
+{% endif %}
+
+<ul>
+<li><a href='/upload'>Upload a photo</a> </li>
+<li><a href='/friends'>Find and View Friends!</a> </li>
+<li><a href='/logout'>Logout</a></li>
+<li><a href='/'>Home</a></li>
+</ul>
