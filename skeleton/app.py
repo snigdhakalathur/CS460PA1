@@ -145,6 +145,10 @@ def getUsersPhotos(uid):
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE user_id = '{0}'".format(uid))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+def getPhotoByID(photoID):
+	cursor = conn.cursor()
+	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE picture_id = '{0}'".format(photoID))
+	return cursor.fetchall()[0] #NOTE list of tuples, [(imgdata, pid), ...]
 
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -197,10 +201,62 @@ def getAlbumPictures(albumID):
     cursor.execute("SELECT Pictures.imgdata, Pictures.picture_id, Pictures.caption FROM Pictures WHERE Pictures.belongs = {0}".format(albumID))
     return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+#INSERT LIKE RELATIONSHIP INTO LIKES TABLE
+def likePhotos(uid, photoID):
+	cursor = conn.cursor()
+	sql = "INSERT INTO Likes VALUES ({0},{1})".format(uid, photoID)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+#VIEW ALL USERS THAT LIKED A PHOTO
+def viewAllLikes(photoID):
+	cursor = conn.cursor()
+	sql = "SELECT fName, lName, email, photoID FROM Likes INNER JOIN Users ON Users.user_id = Likes.userID HAVING photoID = {0};".format(photoID)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+#COUNT TOTAL LIKES A PHOTO HAS
+def countTotalLikes(photoID):
+	cursor = conn.cursor()
+	sql = "SELECT COUNT(*) FROM Likes WHERE photoID = {0};".format(photoID)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchone()[0] #NOTE list of tuples, [(imgdata, pid), ...]
+
+#GET ALL FRIENDS OF A USER
+def getUserFriends(uid):
+	cursor = conn.cursor()
+	sql = "SELECT fName, lName, email, userID1, userID2 FROM FriendsWith INNER JOIN Users ON Users.user_id = FriendsWith.userID2 HAVING userID1 = {0}".format(uid)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+#SELECT FRIENDS WITH EMAIL LIKE SEARCH
+def getUsersByEmail(uid, email):
+	cursor = conn.cursor()
+	sql = "SELECT fName, lName, email, user_id FROM Users WHERE email LIKE '%{0}%' AND user_id NOT IN (SELECT FriendsWith.userID2 FROM FriendsWith WHERE FriendsWith.userID1 = {1}) HAVING user_id <> {2} ".format(email, uid, uid)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+#INSERT FRIENDSHIP INTO FRIENDSWITH TABLE
+def addFriendship(my_uid, friend_uid):
+	cursor = conn.cursor()
+	sql = "INSERT INTO FriendsWith VALUES ({0},{1}), ({2},{3});".format(my_uid, friend_uid, friend_uid, my_uid)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+
 @app.route('/profile')
 @flask_login.login_required
 def protected():
-	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile", photos=getUsersPhotos(uid),base64=base64)
+	#return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
+
 
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
@@ -295,6 +351,47 @@ def viewAlbumsPictures():
         #print("ALBUMS ARE ", photos)
         return render_template('hello.html', message='Here are all the photos in this album', photos=getAlbumPictures(albumID), base64=base64)
 
+@app.route('/like', methods=['GET'])
+@flask_login.login_required
+def likePhoto():
+	if request.method == 'GET':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		photoID = request.args.get('photoID')
+		likePhotos(getUserIdFromEmail(flask_login.current_user.id),photoID)
+		return render_template('hello.html', name=flask_login.current_user.id, message='All Photos By Tag', photos=getUsersPhotos(uid),base64=base64)
+
+
+@app.route('/viewLikes', methods=['GET'])
+@flask_login.login_required
+def viewLikes():
+	if request.method == 'GET':
+		photoID = request.args.get('photoID')
+		return render_template('likes.html', name=flask_login.current_user.id, message='Users that liked this photo:', photoID = photoID, photo=getPhotoByID(photoID), likes = viewAllLikes(photoID), count = countTotalLikes(photoID), base64=base64)
+
+@app.route('/friends', methods=['GET','POST'])
+@flask_login.login_required
+def friends():
+	if request.method == 'GET':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		return render_template('friends.html', message='Friend Dashboard', notFriends = '', currentFriends=getUserFriends(uid), base64=base64)
+
+	else:
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		
+		email = request.form.get('email')
+		
+		return render_template('friends.html', message='Friend Dashbaord', notFriends = getUsersByEmail(uid, email), currentFriends=getUserFriends(uid), base64=base64)
+
+@app.route('/addFriend', methods=['GET'])
+@flask_login.login_required
+def addFriend():
+	if request.method == 'GET':
+		my_uid = uid = getUserIdFromEmail(flask_login.current_user.id)
+		friend_uid = request.args.get('userID')
+		addFriendship(my_uid,friend_uid)
+		return flask.redirect(flask.url_for('friends'))
+	
+	
 #default page
 @app.route("/", methods=['GET'])
 def hello():
