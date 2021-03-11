@@ -23,7 +23,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'password'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'please enter the password'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -120,25 +120,37 @@ def register():
 
 @app.route("/register", methods=['POST'])
 def register_user():
-	try:
-		email=request.form.get('email')
-		password=request.form.get('password')
-	except:
-		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
-		return flask.redirect(flask.url_for('register'))
-	cursor = conn.cursor()
-	test =  isEmailUnique(email)
-	if test:
-		print(cursor.execute("INSERT INTO Users (email, password) VALUES ('{0}', '{1}')".format(email, password)))
-		conn.commit()
+    try:
+        email=request.form.get('email')
+        password=request.form.get('password')
+        first_name=request.form.get('first_name') 
+        last_name = request.form.get('last_name') 
+        dob = request.form.get('dob')
+        hometown = request.form.get('hometown') 
+        gender = request.form.get('gender')
+        print("broke below this line")
+        print("gender is:", gender, "   datadfa")
+        print(first_name, last_name, dob, hometown, gender)
+    except:
+        print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
+        return flask.redirect(flask.url_for('register'))
+    cursor = conn.cursor()
+    test =  isEmailUnique(email)
+    if test:
+        #print(cursor.execute("INSERT INTO Users (email, password) VALUES ('{0}', '{1}')".format(email, password)))
+        try:
+            print(cursor.execute("INSERT INTO Users (email, password, fName, lName, DOB, hometown, gender) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')".format(email, password, first_name, last_name, dob, hometown, gender)))
+        except:
+            print(cursor.execute("INSERT INTO Users (email, password, fName, lName, hometown, gender) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(email, password, first_name, last_name, hometown, gender)))
+        conn.commit()
 		#log user in
-		user = User()
-		user.id = email
-		flask_login.login_user(user)
-		return render_template('hello.html', name=email, message='Account Created!')
-	else:
-		print("couldn't find all tokens")
-		return flask.redirect(flask.url_for('register'))
+        user = User()
+        user.id = email
+        flask_login.login_user(user)
+        return render_template('hello.html', name=email, message='Account Created!')
+    else:
+        print("couldn't find all tokens")
+        return flask.redirect(flask.url_for('register'))
 
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
