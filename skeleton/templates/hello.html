@@ -17,7 +17,7 @@
         <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}' width='600'/>
         <a href='/like?photoID={{photo[1]}}'>LIKE</a><br>
         <a href='/viewLikes?photoID={{photo[1]}}'>View Likes</a><br>
-        <a href='/deletePhoto?photoID={{photo[1]}}'>DELETE</a>
+        
       </li>
     {% endfor %}
     </ul>
@@ -35,6 +35,7 @@
 
         <li>{{album[0]}}<br>
         <a href='/viewAlbumPictures?albumID={{album[1]}}'>VIEW</a>
+
       </li>
     {% endfor %}
     </ul>
@@ -48,6 +49,8 @@
 <li><a href='/logout'>Logout</a></li>
 <li><a href='/'>Home</a></li>
 <li><a href='/createAlbum'>Create Album</a></li>
-<li><a href='/viewPhotos'>View Photos</a></li>
-<li><a href='/viewAlbums'>View Albums</a></li>
+<li><a href='/viewPhotos'>View All Photos</a></li>
+<li><a href='/viewYourPhotos'>View Your Photos</a></li>
+<li><a href='/viewAlbums'>View All Albums</a></li>
+<li><a href='/viewYourAlbums'>View Your Albums</a></li>
 </ul>

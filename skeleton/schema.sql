@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS photoshare2;
-USE photoshare2;
+CREATE DATABASE IF NOT EXISTS photoshare3;
+USE photoshare3;
 DROP TABLE IF EXISTS Pictures CASCADE;
 DROP TABLE IF EXISTS Users CASCADE;
 
@@ -99,5 +99,9 @@ INSERT INTO `photoshare2`.`taggedWith` (`photoID`, `tagDescription`) VALUES ('1'
 INSERT INTO `photoshare2`.`taggedWith` (`photoID`, `tagDescription`) VALUES ('2', 'Woke');
 INSERT INTO `photoshare2`.`taggedWith` (`photoID`, `tagDescription`) VALUES ('1', 'ElmoFire');
 INSERT INTO `photoshare2`.`taggedWith` (`photoID`, `tagDescription`) VALUES ('1', 'Woke');
+
+INSERT INTO `photoshare2`.`Albums` (`albumName`) VALUES ('secondAlbum');
+INSERT INTO `photoshare2`.`Albums` (`albumName`) VALUES ('thirdAlbum');
+
 
 

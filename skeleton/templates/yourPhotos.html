@@ -1,0 +1,19 @@
+<!-- author ben lawson (balawson@bu.edu) -->
+<head>
+    <title>Upload a photo!</title>
+</head>
+{% if photos %}
+<h2>Here are your photos</h2>
+    <ul>
+    {% for photo in photos %}
+
+        <li>{{photo[2]}}<br>
+        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}' width='600'/>
+        <a href='/viewLikes?photoID={{photo[1]}}'>View Likes</a><br>
+        <a href='/deletePhoto?photoID={{photo[1]}}'>DELETE</a>
+      </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<li><a href='/'>Home</a></li>

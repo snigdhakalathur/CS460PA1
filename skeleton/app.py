@@ -23,7 +23,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'enter da password'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'password'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -143,6 +143,11 @@ def register_user():
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE user_id = '{0}'".format(uid))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def getUsersAlbums(uid):
+	cursor = conn.cursor()
+	cursor.execute("SELECT Albums.albumName, Albums.albumID FROM Albums WHERE Albums.albumOwnedBy = '{0}'".format(uid))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 def getPhotoByID(photoID):
@@ -308,8 +313,9 @@ def viewPopularTag():
 def createAlbum():
     if request.method == 'POST':
         albumName = request.form.get('albumName')
+        uid = getUserIdFromEmail(flask_login.current_user.id)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO Albums (albumName) VALUES ('{0}')".format(albumName))
+        cursor.execute("INSERT INTO Albums (albumName, albumOwnedBy) VALUES ('{0}', '{1}')".format(albumName, uid))
         conn.commit()
         return render_template('hello.html', name=flask_login.current_user.id, message='Album created!')
 	#The method is GET so we return a  HTML form to upload the a photo.
@@ -320,12 +326,25 @@ def createAlbum():
 def viewPhotos():
     if request.method == 'GET':
         return render_template('hello.html', message='Here are all the photos', photos=getPictures(),base64=base64)
-    
+
+@app.route('/viewYourPhotos', methods=['GET'])
+@flask_login.login_required
+def viewYourPhotos():
+    if request.method == 'GET':
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        return render_template('yourPhotos.html', message='Here are your photos', photos=getUsersPhotos(uid),base64=base64)
+
 @app.route('/viewAlbums', methods=['GET'])
 def viewAlbums():
     if request.method == 'GET':
         return render_template('hello.html', message='Here are all the albums', albums=getAlbums(), base64=base64)
-    
+
+@app.route('/viewYourAlbums', methods=['GET'])
+@flask_login.login_required
+def viewYourAlbums():
+    if request.method == 'GET':
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        return render_template('yourAlbums.html', message='Here are your albums', albums=getUsersAlbums(uid), base64=base64)
     
 @app.route('/deletePhoto', methods=['POST', 'GET'])
 @flask_login.login_required
@@ -342,6 +361,20 @@ def deletePhoto():
     else:
         return render_template('hello.html')
     
+@app.route('/deleteAlbum', methods=['POST', 'GET'])
+@flask_login.login_required
+def deleteAlbum():
+    if request.method == 'GET':
+        albumID = request.args.get('albumID')
+        #uid = getUserIdFromEmail(flask_login.current_user.id)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Albums WHERE Albums.albumID = {0}".format(albumID))
+        conn.commit()
+        return render_template('yourAlbums.html', name=flask_login.current_user.id, message='Album Deleted')
+	#The method is GET so we return a  HTML form to upload the a photo.
+    else:
+        return render_template('hello.html')
+    
 @app.route('/viewAlbumPictures', methods=['GET'])
 def viewAlbumsPictures():
     if request.method == 'GET':
@@ -350,6 +383,15 @@ def viewAlbumsPictures():
         #photos =  photos.encode("utf-8")
         #print("ALBUMS ARE ", photos)
         return render_template('hello.html', message='Here are all the photos in this album', photos=getAlbumPictures(albumID), base64=base64)
+    
+@app.route('/viewYourAlbumPictures', methods=['GET'])
+@flask_login.login_required
+def viewYourAlbumPictures():
+    if request.method == 'GET':
+        albumID = request.args.get('albumID')
+        #photos =  photos.encode("utf-8")
+        #print("ALBUMS ARE ", photos)
+        return render_template('yourPhotos.html', message='Here are all the photos in this album', photos=getAlbumPictures(albumID), base64=base64)
 
 @app.route('/like', methods=['GET'])
 @flask_login.login_required
