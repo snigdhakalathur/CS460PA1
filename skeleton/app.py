@@ -23,7 +23,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'please enter the password'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'passwordPlease'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -197,7 +197,7 @@ def getUsersPhotosByTag(uid, tagDescription):
 #GET THE POPULAR TAGS
 def getAllTags():
 	cursor = conn.cursor()
-	cursor.execute("SELECT taggedWith.tagDescription FROM taggedWith GROUP BY taggedwith.tagDescription ORDER BY COUNT(*) DESC LIMIT 1")
+	cursor.execute("SELECT taggedWith.tagDescription FROM taggedWith GROUP BY taggedwith.tagDescription ORDER BY COUNT(*) DESC LIMIT 3")
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 #GET ALL THE PICTURES
@@ -304,6 +304,7 @@ def upload_file():
 def viewAllTags():
 	if request.method == 'GET':
 		tagDescription = request.args.get('tag')
+		print("tags are:", tagDescription)
 		return render_template('hello.html', name=flask_login.current_user.id, message='All Photos By Tag', photos=getAllPhotosByTag(tagDescription),base64=base64)
 
 @app.route('/viewUsersTags', methods=['GET'])
@@ -318,7 +319,13 @@ def viewUsersTags():
 @flask_login.login_required
 def viewPopularTag():
     if request.method == 'GET':
-        return render_template('hello.html', name=flask_login.current_user.id, message = getAllTags(),base64=base64)
+        tag = getAllTags()
+        tagsWithoutExtraStuff = []
+        for t in range(len(tag)):
+                tagsWithoutExtraStuff += [tag[t][0]]
+        print(tagsWithoutExtraStuff)
+        #return render_template('hello.html', name=flask_login.current_user.id, message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",base64=base64)
+        return render_template('popularTags.html', name=flask_login.current_user.id, message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",tags = tagsWithoutExtraStuff, base64=base64)
 		
 @app.route('/createAlbum', methods=['POST', 'GET'])
 @flask_login.login_required

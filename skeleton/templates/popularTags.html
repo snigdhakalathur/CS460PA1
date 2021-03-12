@@ -1,0 +1,14 @@
+<!-- author ben lawson (balawson@bu.edu) -->
+
+{% if tags %}
+    <ul>
+    {% for tag in tags %}
+
+        <li>{{tag}}<br>
+        <a href='/viewAllTags?tag={{tag}}'>Check out this tag!</a><br>
+      </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<li><a href='/'>Home</a></li>
