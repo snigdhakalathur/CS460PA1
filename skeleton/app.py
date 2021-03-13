@@ -352,6 +352,13 @@ def getTopFiveUserTags(uid):
 	cursor.execute(sql)
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+#GET PHOTO OWNER
+def getPhotoOwner(pid):
+	cursor = conn.cursor()
+	sql = "SELECT user_id FROM Pictures WHERE picture_id = {0}".format(pid)
+	cursor.execute(sql)
+	return cursor.fetchone()[0]
+
 @app.route('/profile')
 @flask_login.login_required
 def protected():
@@ -588,22 +595,27 @@ def tags():
 @app.route('/comments', methods=['GET','POST'])
 @flask_login.login_required
 def comments():
-	if request.method == 'POST':
+		if request.method == 'POST':
 			
-		uid = getUserIdFromEmail(flask_login.current_user.id)
-		
-		comm = request.form.get('comment')
-		pid = request.form.get('photoID')
-		print(pid)
-		addCommentToPhoto(pid, uid, comm)
-		#return flask.redirect(flask.url_for('hello'))
-		return render_template('comments.html', message='Comment Dashboard', photo=getPhotoByID(pid), comments = getComments(pid), base64=base64)
+			uid = getUserIdFromEmail(flask_login.current_user.id)
+			comm = request.form.get('comment')
+			pid = request.form.get('photoID')
+			print(pid)
+			addCommentToPhoto(pid, uid, comm)
+			#return flask.redirect(flask.url_for('hello'))
+			return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(pid), comments = getComments(pid), base64=base64)
 	
-	else:
-		#print("FLASK USER", flask_login)
-		photoID = request.args.get('photoID')
-		print(photoID)
-		return render_template('comments.html', message='Comment Dashboard', photo=getPhotoByID(photoID), comments = getComments(photoID), base64=base64)
+		else:
+			#print("FLASK USER", flask_login)
+			photoID = request.args.get('photoID')
+			print(photoID)
+			uid = getUserIdFromEmail(flask_login.current_user.id)
+			user = getPhotoOwner(photoID)
+			if uid == user:
+				return render_template('comments.html', message='Comment Dashboard', allowed = False, photo=getPhotoByID(photoID), comments = getComments(photoID), base64=base64)
+
+			else:
+				return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(photoID), comments = getComments(photoID), base64=base64)
 
 @app.route('/photoRecs', methods=['GET'])
 @flask_login.login_required
