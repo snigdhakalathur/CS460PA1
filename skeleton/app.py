@@ -23,7 +23,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'passwordPlease'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'plassword'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -212,6 +212,7 @@ def getAlbums():
     cursor.execute("SELECT Albums.albumName, Albums.albumID FROM Albums")
     return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+
 #GET ALL THE PICTURES THAT BELONG TO AN ALBUM
 def getAlbumPictures(albumID):
     cursor = conn.cursor()
@@ -324,7 +325,7 @@ def addCommentToPhoto(pid, uid, comm):
 #GET ALL PHOTO'S COMMENTS
 def getComments(photoID):
 	cursor = conn.cursor()
-	sql = "SELECT * FROM photoshare.Comments WHERE commentedUnder = {0}".format(photoID)
+	sql = "SELECT * FROM Comments WHERE commentedUnder = {0}".format(photoID)
 	print(sql)
 	cursor.execute(sql)
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
@@ -474,6 +475,21 @@ def viewYourAlbumPictures():
         #photos =  photos.encode("utf-8")
         #print("ALBUMS ARE ", photos)
         return render_template('yourPhotos.html', message='Here are all the photos in this album', photos=getAlbumPictures(albumID), base64=base64)
+
+@app.route('/reccomendFriends', methods=['GET'])
+@flask_login.login_required
+def reccomendFriends():
+    if request.method == 'GET':
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        cursor = conn.cursor()
+        cursor.execute("SELECT t2.userID2, count(*), u.email FROM FriendsWith t1 INNER JOIN FriendsWith t2 ON t2.userID1 = t1.userID2 and t2.userID2 != t1.userID1 INNER JOIN Users u on t2.userID2 = u.user_id WHERE t1.userID1 = {0} and t1.userID2 and t2.userID2 NOT IN (Select t3.userID2 from friendsWith t3 where t3.userID1 = {1}) GROUP BY t2.userId2, u.email ORDER BY count(*) desc, userId2".format(uid, uid))
+        recs = cursor.fetchall()
+        
+        print(recs)
+        #cursor.execute("DELETE FROM taggedWith WHERE taggedWith.photoID = {0}".format(photoID))
+        #photos =  photos.encode("utf-8")
+        #print("ALBUMS ARE ", photos)
+        return render_template('friendReccomendation.html', message='Here are some reccomended friends', friends=recs, base64=base64)
 
 @app.route('/like', methods=['GET'])
 @flask_login.login_required

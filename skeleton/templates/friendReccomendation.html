@@ -1,0 +1,14 @@
+<!-- author ben lawson (balawson@bu.edu) -->
+
+{% if friends %}
+    <ul>
+    {% for friend in friends %}
+
+        <li>{{friend[2]}}<br>
+        <a href='/addFriend?userID={{friend[0]}}'>Friend this User</a><br>
+      </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<li><a href='/'>Home</a></li>
