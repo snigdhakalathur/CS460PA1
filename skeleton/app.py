@@ -222,7 +222,7 @@ def getAlbumPictures(albumID):
 #INSERT LIKE RELATIONSHIP INTO LIKES TABLE
 def likePhotos(uid, photoID):
 	cursor = conn.cursor()
-	sql = "INSERT INTO Likes VALUES ({0},{1})".format(uid, photoID)
+	sql = "REPLACE INTO Likes VALUES ({0},{1})".format(uid, photoID)
 	print(sql)
 	cursor.execute(sql)
 	conn.commit()
