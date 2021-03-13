@@ -330,6 +330,27 @@ def getComments(photoID):
 	cursor.execute(sql)
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+# "YOU MAY LIKE" PHOTOS
+def getRecommendedPhotoIDs(tags):
+	if tags == []:
+		return []
+	cursor = conn.cursor()
+	acc = ""
+	for t in tags:
+		acc += "'" + str(t) + "',"
+	acc = acc[:-1]
+	sql = "SELECT * From (SELECT photoID, Count(photoID) AS C1 From taggedWith as B Group by photoID) AS B INNER JOIN (SELECT A.photoID, COUNT(*) as C2 FROM taggedWith A WHERE A.tagDescription IN ({0}) GROUP BY A.photoID ORDER BY COUNT(A.photoID) DESC) AS Q ON B.photoID = Q.photoID GROUP BY B.photoID ORDER BY C2 DESC, C1 ASC".format(acc)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+#GET TOP 5 MOST USED TAGS OF USER
+def getTopFiveUserTags(uid):
+	cursor = conn.cursor()
+	sql = "SELECT user_id, tagDescription, COUNT(*) FROM (taggedWith inner join Pictures on photoID = picture_id) WHERE user_id = {0} GROUP BY tagDescription ORDER BY COUNT(*) DESC LIMIT 5".format(uid)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 @app.route('/profile')
 @flask_login.login_required
@@ -565,12 +586,12 @@ def tags():
 		return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = myRes, base64=base64)
 
 @app.route('/comments', methods=['GET','POST'])
-#@flask_login.login_required
+@flask_login.login_required
 def comments():
 	if request.method == 'POST':
 			
-		#uid = getUserIdFromEmail(flask_login.current_user.id)
-		#print(UID, uid)
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		print(UID, uid)
 		comm = request.form.get('comment')
 		pid = request.form.get('photoID')
 		print(pid)
@@ -579,10 +600,30 @@ def comments():
 		return render_template('comments.html', message='Comment Dashboard', photo=getPhotoByID(pid), comments = getComments(pid), base64=base64)
 	
 	else:
-		print("FLASK USER", flask_login)
+		#print("FLASK USER", flask_login)
 		photoID = request.args.get('photoID')
 		print(photoID)
 		return render_template('comments.html', message='Comment Dashboard', photo=getPhotoByID(photoID), comments = getComments(photoID), base64=base64)
+
+@app.route('/photoRecs', methods=['GET'])
+@flask_login.login_required
+def photoRecs():
+	if request.method == 'GET':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		tags = getTopFiveUserTags(uid)
+		res = []
+		for i in tags:
+			res.append(i[1])
+
+		if res != []:
+			pids = getRecommendedPhotoIDs(res)
+			res2 = []
+			for i in pids:
+				res2.append(i[0])
+			
+			return render_template('photoRecs.html', message='You May Also Like Dashboard', photos = getAllPhotosByPhotoIDS(res2),  base64=base64)	
+		else:
+			return render_template('photoRecs.html', message='You May Also Like Dashboard', photos = [],  base64=base64)	
 
 	
 #default page
