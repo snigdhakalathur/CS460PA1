@@ -1,0 +1,51 @@
+<!-- author Snigdha Kalathur -->
+<!doctype html>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
+<title>Photoshare</title>
+
+
+<h2>Tag Dashboard</h2>
+
+
+
+
+<h2>My Tags</h2>
+{% if myTags %}
+    <u1>
+        {% for tag in myTags %}
+            <li>
+            <a href='/viewUsersTags?tag={{tag}}'>{{tag}}</a>
+            </li>
+        {% endfor %}
+    </u1>
+{% endif %}
+
+<h2>All Tags</h2>
+{% if allTags %}
+    <u1>
+        {% for tag in allTags %}
+            <li>
+            <a href='/viewAllTags?tag={{tag}}'>{{tag}}</a>
+            </li>
+        {% endfor %}
+    </u1>
+{% endif %}
+
+
+
+{% if message is none %}
+  <p>You should <a href='/login'>login!</a></p>
+{% else %}
+  <p> Go to <a href='/profile'>profile?</a></p>
+{% endif %}
+
+<ul>
+        <li><a href='/upload'>Upload a photo</a> </li>
+        <li><a href='/friends'>Find and View Friends!</a> </li>
+        <li><a href='/photoSearch'>Search Photos!</a> </li>
+        <li><a href='/tags'>View Tags!</a> </li>
+        <li><a href='/logout'>Logout</a></li>
+        <li><a href='/'>Home</a></li>
+</ul>
