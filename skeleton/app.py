@@ -591,7 +591,7 @@ def comments():
 	if request.method == 'POST':
 			
 		uid = getUserIdFromEmail(flask_login.current_user.id)
-		print(UID, uid)
+		
 		comm = request.form.get('comment')
 		pid = request.form.get('photoID')
 		print(pid)
