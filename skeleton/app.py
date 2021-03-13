@@ -266,6 +266,69 @@ def addFriendship(my_uid, friend_uid):
 	cursor.execute(sql)
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+#SEARCH PHOTOS BY TAG
+def searchPhotosByTag(tag):
+	cursor = conn.cursor()
+	numWords = len(tag.split(" "))
+	tagEdited = tag.replace(" ", "','")
+	tagEdited = "'" + tagEdited + "'"
+	#sql = "(SELECT photoID, tagDescription FROM taggedWith WHERE tagDescription IN ({0}))".format(tagEdited)
+	sql = "(SELECT photoID FROM taggedWith WHERE tagDescription IN ({0}) GROUP BY photoID HAVING COUNT(*) = {1})".format(tagEdited, numWords) 
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+#GET ALL PHOTOS BY PHOTOID
+def getAllPhotosByPhotoIDS(ids):
+	cursor = conn.cursor()
+	if (ids == []):
+		return []
+	acc = ""
+	for num in ids:
+		acc += "'" + str(num) + "',"
+	acc = acc[:-1]
+	sql = "SELECT imgdata, picture_id, caption FROM Pictures WHERE picture_id in ({0})".format(acc)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+#GET ALL TAG DESCRIPTIONS
+def getAllTagDescriptions():
+	cursor = conn.cursor()
+	sql = "SELECT * FROM Tags;"
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+#GET ALL USER'S TAG DESCRIPTIONS
+def getAllUsersTagDescription(uid):
+	cursor = conn.cursor()
+	sql = "SELECT distinct A.tagDescription FROM (SELECT * FROM taggedWith INNER JOIN Pictures ON picture_id = photoID) as A WHERE user_id = {0}".format(uid)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall()
+
+#ADD COMMENT TO PHOTO
+def addCommentToPhoto(pid, uid, comm):
+	cursor = conn.cursor()
+	comDate = "2020-10-10"
+	#if (uid != 0):
+	sql = "INSERT INTO Comments (commentText, commentDate, commentOwnedBy, commentedUnder) VALUES ('{0}', '{1}', '{2}', '{3}')".format(comm, comDate, uid, pid)
+	#else:
+		#sql = "INSERT INTO Comments (commentText, commentDate, commentedUnder) VALUES ('{0}', '{1}', '{2}')".format(comm, comDate, pid)
+	
+	print(sql)
+	cursor.execute(sql)
+	conn.commit()
+
+#GET ALL PHOTO'S COMMENTS
+def getComments(photoID):
+	cursor = conn.cursor()
+	sql = "SELECT * FROM photoshare.Comments WHERE commentedUnder = {0}".format(photoID)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
 
 @app.route('/profile')
 @flask_login.login_required
@@ -451,7 +514,60 @@ def addFriend():
 		friend_uid = request.args.get('userID')
 		addFriendship(my_uid,friend_uid)
 		return flask.redirect(flask.url_for('friends'))
+
+@app.route('/photoSearch', methods=['GET','POST'])
+@flask_login.login_required
+def photoSearch():
+		if request.method == 'POST':
+			print("WATERMELON")
+			tag = request.form.get('photoSearch')
+			pics = searchPhotosByTag(tag)
+			res = []
+			for i in pics:
+				res.append(i[0])
+			print("RESRES", res)
+			return render_template('photoSearch.html', message='Photo Search Dashboard', photos = getAllPhotosByPhotoIDS(res), base64=base64)
+		else:
+			return render_template('photoSearch.html', message='Photo Search Dashboard', photos = [], base64=base64)
+
+@app.route('/tags', methods=['GET'])
+@flask_login.login_required
+def tags():
+	if request.method == 'GET':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		
+		t = getAllTagDescriptions()
+		res = []
+		for i in t:
+			res.append(i[0])
+
+		myT = getAllUsersTagDescription(uid)
+		myRes = []
+		for i in myT:
+			myRes.append(i[0])
+
+		return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = myRes, base64=base64)
+
+@app.route('/comments', methods=['GET','POST'])
+#@flask_login.login_required
+def comments():
+	if request.method == 'POST':
+			
+		#uid = getUserIdFromEmail(flask_login.current_user.id)
+		#print(UID, uid)
+		comm = request.form.get('comment')
+		pid = request.form.get('photoID')
+		print(pid)
+		addCommentToPhoto(pid, uid, comm)
+		#return flask.redirect(flask.url_for('hello'))
+		return render_template('comments.html', message='Comment Dashboard', photo=getPhotoByID(pid), comments = getComments(pid), base64=base64)
 	
+	else:
+		print("FLASK USER", flask_login)
+		photoID = request.args.get('photoID')
+		print(photoID)
+		return render_template('comments.html', message='Comment Dashboard', photo=getPhotoByID(photoID), comments = getComments(photoID), base64=base64)
+
 	
 #default page
 @app.route("/", methods=['GET'])
