@@ -225,7 +225,7 @@ def likePhotos(uid, photoID):
 	sql = "INSERT INTO Likes VALUES ({0},{1})".format(uid, photoID)
 	print(sql)
 	cursor.execute(sql)
-	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+	conn.commit()
 
 #VIEW ALL USERS THAT LIKED A PHOTO
 def viewAllLikes(photoID):
@@ -265,7 +265,7 @@ def addFriendship(my_uid, friend_uid):
 	sql = "INSERT INTO FriendsWith VALUES ({0},{1}), ({2},{3});".format(my_uid, friend_uid, friend_uid, my_uid)
 	print(sql)
 	cursor.execute(sql)
-	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+	conn.commit()
 
 #SEARCH PHOTOS BY TAG
 def searchPhotosByTag(tag):
