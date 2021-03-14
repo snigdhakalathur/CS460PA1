@@ -412,19 +412,19 @@ def upload_file():
 #end photo uploading code
 
 @app.route('/viewAllTags', methods=['GET'])
-@flask_login.login_required
+#@flask_login.login_required
 def viewAllTags():
 	if request.method == 'GET':
 		tagDescription = request.args.get('tag')
 		print("tags are:", tagDescription)
-		return render_template('hello.html', name=flask_login.current_user.id, message='All Photos By Tag', photos=getAllPhotosByTag(tagDescription),base64=base64)
+		return render_template('hello.html', message='All Photos By Tag', photos=getAllPhotosByTag(tagDescription),base64=base64)
 
 @app.route('/viewUsersTags', methods=['GET'])
 @flask_login.login_required
 def viewUsersTags():
 	if request.method == 'GET':
 		tagDescription = request.args.get('tag')
-		return render_template('hello.html', name=flask_login.current_user.id, message='All Photos By Tag', photos=getUsersPhotosByTag(flask_login.current_user.id, tagDescription),base64=base64)
+		return render_template('hello.html', message='All Photos By Tag', photos=getUsersPhotosByTag(flask_login.current_user.id, tagDescription),base64=base64)
 
 #GETTING MOST POPULAR TAG
 @app.route('/viewPopularTags', methods=['GET'])
@@ -595,22 +595,25 @@ def photoSearch():
 			return render_template('photoSearch.html', message='Photo Search Dashboard', photos = [], base64=base64)
 
 @app.route('/tags', methods=['GET'])
-@flask_login.login_required
+#@flask_login.login_required
 def tags():
 	if request.method == 'GET':
-		uid = getUserIdFromEmail(flask_login.current_user.id)
-		
 		t = getAllTagDescriptions()
 		res = []
 		for i in t:
 			res.append(i[0])
 
-		myT = getAllUsersTagDescription(uid)
-		myRes = []
-		for i in myT:
-			myRes.append(i[0])
+		if (flask_login.current_user.is_anonymous != True):
+			uid = getUserIdFromEmail(flask_login.current_user.id)
+			
+			myT = getAllUsersTagDescription(uid)
+			myRes = []
+			for i in myT:
+				myRes.append(i[0])
 
-		return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = myRes, base64=base64)
+			return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = myRes, base64=base64)
+		else:
+			return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = [], base64=base64)
 
 @app.route('/comments', methods=['GET','POST'])
 def comments():
