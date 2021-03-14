@@ -1,11 +1,9 @@
 <!-- author ben lawson (balawson@bu.edu) -->
 
-{% if tags %}
+{% if activities %}
     <ul>
-    {% for tag in tags %}
-
-        <li>{{tag}}<br>
-        <a href='/viewAllTags?tag={{tag}}'>{{tag}}</a><br>
+    {% for activity in activities %}
+        <li>{{activity[0]}} {{activity[1]}}<br>
       </li>
     {% endfor %}
     </ul>

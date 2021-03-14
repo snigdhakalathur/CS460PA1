@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'plassword'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'pswrd'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -578,6 +578,15 @@ def addFriend():
 		friend_uid = request.args.get('userID')
 		addFriendship(my_uid,friend_uid)
 		return flask.redirect(flask.url_for('friends'))
+
+@app.route('/userActivity', methods=['GET'])
+@flask_login.login_required
+def userActivity():
+	if request.method == 'GET':
+                cursor = conn.cursor()
+                cursor.execute("Select Users.email, COUNT(picture_id)+ COUNT(Comments.commentID) From Users left Outer Join Pictures on Users.user_id = Pictures.user_id left outer join Comments on Users.user_id = Comments.commentOwnedBy Group By Users.user_id having COUNT(picture_id)+ COUNT(Comments.commentID)>0 Order by COUNT(picture_id)+ COUNT(Comments.commentID) DESC Limit 10")
+                recs = cursor.fetchall()
+                return render_template('userActivity.html', message='Here are the top users with their contribution scores', activities=recs, base64=base64)
 
 @app.route('/photoSearch', methods=['GET','POST'])
 #@flask_login.login_required
