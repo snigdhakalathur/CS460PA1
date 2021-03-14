@@ -14,6 +14,7 @@
 
         <!--pass uid of the selcted photo and current uid and only show this form if current user <> photo owner-->
         <br>
+        {% if allowed %}
         <div class="title">
             </div>
             <div id="content">
@@ -24,6 +25,7 @@
                     <input type="submit" />
                 </form>
              </div>
+             {% endif %}
 
         <h4>Comments:</h4><br>
         <br>
@@ -32,12 +34,23 @@
         {%for com in comments%}
         
         <li>
-            {{com[1]}} <br>
-
+            {{com[6]}} commented on {{com[2]}}: {{com[1]}} <br>
+             
         </li>
         {% endfor %}
-        </u1>
         {% endif %}
+
+        {% if anonComments%}
+        <u1>
+        {%for com in anonComments%}
+        
+        <li>
+            Anonymous commented on {{com[2]}}: {{com[1]}} <br>
+   
+        </li>
+        {% endfor %}
+        {% endif %}
+      </u1>
       </li>
     </ul>
 {% endif %}
