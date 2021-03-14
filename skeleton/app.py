@@ -580,10 +580,9 @@ def addFriend():
 		return flask.redirect(flask.url_for('friends'))
 
 @app.route('/photoSearch', methods=['GET','POST'])
-@flask_login.login_required
+#@flask_login.login_required
 def photoSearch():
 		if request.method == 'POST':
-			print("WATERMELON")
 			tag = request.form.get('photoSearch')
 			pics = searchPhotosByTag(tag)
 			res = []
