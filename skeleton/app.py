@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'pswrd'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'pwdrd'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -538,6 +538,19 @@ def reccomendFriends():
         #photos =  photos.encode("utf-8")
         #print("ALBUMS ARE ", photos)
         return render_template('friendReccomendation.html', message='Here are some reccomended friends', friends=recs, base64=base64)
+
+@app.route('/searchComments', methods=['POST', 'GET'])
+def searchComments():
+    if request.method == 'POST':
+        cursor = conn.cursor()
+        comment = request.form.get('comment')
+        cursor.execute("Select COUNT(Comments.commentID), Users.email From Comments INNER JOIN Users Where Comments.commentText = '{0}' and Comments.commentOwnedBy = Users.user_id Group By Comments.commentText, Users.email Order by Count(Comments.commentID) desc".format(comment))
+        recs = cursor.fetchall()
+        print("recs are:", recs)
+        return render_template('searchComments.html', message='Here are the results!', searchResults = recs)
+	#The method is GET so we return a  HTML form to upload the a photo.
+    else:
+        return render_template('searchComments.html')
 
 @app.route('/like', methods=['GET'])
 @flask_login.login_required
