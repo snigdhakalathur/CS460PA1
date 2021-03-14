@@ -312,7 +312,7 @@ def getAllUsersTagDescription(uid):
 #ADD COMMENT TO PHOTO
 def addCommentToPhoto(pid, uid, comm):
 	cursor = conn.cursor()
-	comDate = "2020-10-10"
+	comDate = date.today()
 	#if (uid != 0):
 	sql = "INSERT INTO Comments (commentText, commentDate, commentOwnedBy, commentedUnder) VALUES ('{0}', '{1}', '{2}', '{3}')".format(comm, comDate, uid, pid)
 	#else:
@@ -321,11 +321,30 @@ def addCommentToPhoto(pid, uid, comm):
 	print(sql)
 	cursor.execute(sql)
 	conn.commit()
+	
+#ADD ANON COMMENT TO PHOTO
+def addAnonCommentToPhoto(pid, comm):
+	cursor = conn.cursor()
+	comDate = date.today()
+	sql = "INSERT INTO Comments (commentText, commentDate, commentedUnder) VALUES ('{0}', '{1}', '{2}')".format(comm, comDate, pid)
+
+	print(sql)
+	cursor.execute(sql)
+	conn.commit()
 
 #GET ALL PHOTO'S COMMENTS
 def getComments(photoID):
 	cursor = conn.cursor()
-	sql = "SELECT * FROM Comments WHERE commentedUnder = {0}".format(photoID)
+	#sql = "SELECT * FROM photoshare.Comments WHERE commentedUnder = {0}".format(photoID)
+	sql = "SELECT * FROM (SELECT * FROM Comments WHERE commentedUnder = {0}) as A INNER JOIN Users B ON B.user_id = A.commentOwnedBy".format(photoID)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+#GET ALL ANON PHOTO COMMENTS
+def getAnonComment(photoID):
+	cursor = conn.cursor()
+	sql = "SELECT * FROM Comments WHERE commentedUnder = {0} AND commentOwnedBy IS NULL".format(photoID)
 	print(sql)
 	cursor.execute(sql)
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
@@ -593,30 +612,44 @@ def tags():
 		return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = myRes, base64=base64)
 
 @app.route('/comments', methods=['GET','POST'])
-@flask_login.login_required
 def comments():
+	if (flask_login.current_user.is_anonymous != True):
 		if request.method == 'POST':
-			
+				
 			uid = getUserIdFromEmail(flask_login.current_user.id)
 			comm = request.form.get('comment')
 			pid = request.form.get('photoID')
 			print(pid)
 			addCommentToPhoto(pid, uid, comm)
 			#return flask.redirect(flask.url_for('hello'))
-			return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(pid), comments = getComments(pid), base64=base64)
-	
+			return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(pid), comments = getComments(pid), anonComments = getAnonComment(pid), base64=base64)
+		
 		else:
-			#print("FLASK USER", flask_login)
 			photoID = request.args.get('photoID')
 			print(photoID)
 			uid = getUserIdFromEmail(flask_login.current_user.id)
 			user = getPhotoOwner(photoID)
 			if uid == user:
-				return render_template('comments.html', message='Comment Dashboard', allowed = False, photo=getPhotoByID(photoID), comments = getComments(photoID), base64=base64)
+				return render_template('comments.html', message='Comment Dashboard', allowed = False, photo=getPhotoByID(photoID), comments = getComments(photoID), anonComments = getAnonComment(photoID), base64=base64)
 
 			else:
-				return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(photoID), comments = getComments(photoID), base64=base64)
+				return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(photoID), comments = getComments(photoID), anonComments = getAnonComment(photoID), base64=base64)
+	else:
+		if request.method == 'POST':
 
+			comm = request.form.get('comment')
+			pid = request.form.get('photoID')
+			print(pid)
+			addAnonCommentToPhoto(pid, comm)
+			return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(pid), comments = getComments(pid), anonComments = getAnonComment(pid), base64=base64)
+		
+		else:
+
+			photoID = request.args.get('photoID')
+			print(photoID)			
+			return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(photoID), comments = getComments(photoID), anonComments = getAnonComment(photoID), base64=base64)
+
+	
 @app.route('/photoRecs', methods=['GET'])
 @flask_login.login_required
 def photoRecs():
