@@ -398,13 +398,22 @@ def getPhotoOwner(pid):
 	cursor.execute(sql)
 	return cursor.fetchone()[0]
 
+#GET USER INFO
+def userInfo(uid):
+	cursor = conn.cursor()
+	sql = "SELECT * FROM Users WHERE user_id = {0}".format(uid)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+	
+
 @app.route('/profile')
 @flask_login.login_required
 def protected():
 	uid = getUserIdFromEmail(flask_login.current_user.id)
-	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile", photos=getUsersPhotos(uid),base64=base64)
+	return render_template('profile.html', userInfo = userInfo(uid) , message="Profile",base64=base64)
 	#return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
-
+	
 
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
