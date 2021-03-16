@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'pwdrd'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'sdf'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -400,15 +400,17 @@ def upload_file():
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
-		album = request.form.get('album')
+		album = request.form.get('albums')
 		photo_data =imgfile.read()
 		cursor = conn.cursor()
+		print("ALBUM IS: ", album)
 		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption, belongs) VALUES (%s, %s, %s, %s )''' ,(photo_data,uid, caption, album))
 		conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
-		return render_template('upload.html')
+                
+                return render_template('upload.html', albums = getAlbums())
 #end photo uploading code
 
 @app.route('/viewAllTags', methods=['GET'])
@@ -446,7 +448,8 @@ def createAlbum():
         albumName = request.form.get('albumName')
         uid = getUserIdFromEmail(flask_login.current_user.id)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO Albums (albumName, albumOwnedBy) VALUES ('{0}', '{1}')".format(albumName, uid))
+        todayDate = date.today()
+        cursor.execute("INSERT INTO Albums (albumName, albumOwnedBy, albumDate) VALUES ('{0}', '{1}', '{2}')".format(albumName, uid, todayDate))
         conn.commit()
         return render_template('hello.html', name=flask_login.current_user.id, message='Album created!')
 	#The method is GET so we return a  HTML form to upload the a photo.
