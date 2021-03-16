@@ -7,9 +7,9 @@ CREATE TABLE Users (
     user_id int4  AUTO_INCREMENT,
     email varchar(255) NOT NULL UNIQUE,
     password varchar(255) NOT NULL,
-    fName varchar(255),
-    lName varchar(255), 
-    DOB DATE, 
+    fName varchar(255) NOT NULL,
+    lName varchar(255) NOT NULL, 
+    DOB DATE NOT NULL, 
     hometown varchar(255), 
     gender varchar(255), 
   CONSTRAINT users_pk PRIMARY KEY (user_id)
