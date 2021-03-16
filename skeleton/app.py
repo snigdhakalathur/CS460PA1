@@ -271,9 +271,18 @@ def addFriendship(my_uid, friend_uid):
 #SEARCH PHOTOS BY TAG
 def searchPhotosByTag(tag):
 	cursor = conn.cursor()
-	numWords = len(tag.split(" "))
-	tagEdited = tag.replace(" ", "','")
-	tagEdited = "'" + tagEdited + "'"
+
+	words = tag.split()
+	numWords = len(words)
+
+	if numWords == 0:
+		return []
+
+	result = ''
+	for i in words:
+		result += "'" + i + "',"
+	tagEdited = result [:-1]
+
 	#sql = "(SELECT photoID, tagDescription FROM taggedWith WHERE tagDescription IN ({0}))".format(tagEdited)
 	sql = "(SELECT photoID FROM taggedWith WHERE tagDescription IN ({0}) GROUP BY photoID HAVING COUNT(*) = {1})".format(tagEdited, numWords) 
 	print(sql)
