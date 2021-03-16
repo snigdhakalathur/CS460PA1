@@ -9,7 +9,7 @@
             <form method="post" enctype="multipart/form-data" action="/upload">
                 <label for="photo">Select photo:</label>
                 <input type="file" name="photo" required='true' /><br />
-                <label for="caption">Please caption:</label>
+                <label for="caption">Please enter a caption:</label>
                 <input type="text" name="caption" required='true' /><br />
 
                 Select an Album Please:
@@ -18,6 +18,9 @@
                   <option value= "{{albumName[1]}}" SELECTED>{{albumName[0]}}</option>"
                   {% endfor %}
               </select>
+              <br>
+              <label for="tags">Please enter tags:</label>
+              <input type="text" name="tags" /><br />
               <input type="submit" value="Upload" />
             </form>
     </body>

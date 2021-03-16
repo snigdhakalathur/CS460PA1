@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'ilwejri'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'lsdjflks'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -172,6 +172,11 @@ def getUsersAlbums(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT Albums.albumName, Albums.albumID FROM Albums WHERE Albums.albumOwnedBy = '{0}'".format(uid))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def getLastEntry():
+    cursor = conn.cursor()
+    cursor.execute("SELECT Pictures.picture_id from Pictures where picture_id = (SELECT LAST_INSERT_ID())")
+    return cursor.fetchone()[0] #NOTE list of tuples, [(imgdata, pid), ...]
 
 def getPhotoByID(photoID):
 	cursor = conn.cursor()
@@ -424,21 +429,35 @@ def allowed_file(filename):
 @app.route('/upload', methods=['GET', 'POST'])
 @flask_login.login_required
 def upload_file():
-	if request.method == 'POST':
-		uid = getUserIdFromEmail(flask_login.current_user.id)
-		imgfile = request.files['photo']
-		caption = request.form.get('caption')
-		album = request.form.get('albums')
-		photo_data =imgfile.read()
-		cursor = conn.cursor()
-		print("ALBUM IS: ", album)
-		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption, belongs) VALUES (%s, %s, %s, %s )''' ,(photo_data,uid, caption, album))
-		conn.commit()
-		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
+    if request.method == 'POST':
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        imgfile = request.files['photo']
+        caption = request.form.get('caption')
+        album = request.form.get('albums')
+        tags = request.form.get('tags')
+        photo_data =imgfile.read()
+        cursor = conn.cursor()
+        print("ALBUM IS: ", album)
+        cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption, belongs) VALUES (%s, %s, %s, %s )''' ,(photo_data,uid, caption, album))
+        if len(tags)>0:
+            photoID = getLastEntry()
+            print("PHOTO ID IS:", photoID)
+            
+            
+            #tags = tags.split(',')
+            tags = [tag.strip() for tag in tags.split(',')]
+            for tag in tags:
+                try:
+                    cursor.execute('''INSERT INTO taggedWith (photoID, tagDescription) VALUES (%s, %s)''' ,(photoID, tag))
+                except:
+                    #not in tags table
+                    cursor.execute('''INSERT INTO tags (tagDescription) VALUES (%s)''' ,(tag))
+                    cursor.execute('''INSERT INTO taggedWith (photoID, tagDescription) VALUES (%s, %s)''' ,(photoID, tag))
+        conn.commit()
+        return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
-	else:
-                
-                return render_template('upload.html', albums = getAlbums())
+    else:
+        return render_template('upload.html', albums = getAlbums())
 #end photo uploading code
 
 @app.route('/viewAllTags', methods=['GET'])
