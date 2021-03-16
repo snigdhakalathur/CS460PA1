@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'slkdjfkldsjkfs'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'slkjflksdjf'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -198,7 +198,7 @@ def getUsersPhotosByTag(uid, tagDescription):
 #GET THE POPULAR TAGS
 def getAllTags():
 	cursor = conn.cursor()
-	cursor.execute("SELECT taggedWith.tagDescription FROM taggedWith GROUP BY taggedwith.tagDescription ORDER BY COUNT(*) DESC")
+	cursor.execute("SELECT taggedWith.tagDescription FROM taggedWith GROUP BY taggedwith.tagDescription ORDER BY COUNT(*) DESC LIMIT 5")
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 #GET ALL THE PICTURES
@@ -439,7 +439,6 @@ def viewUsersTags():
 
 #GETTING MOST POPULAR TAG
 @app.route('/viewPopularTags', methods=['GET'])
-@flask_login.login_required
 def viewPopularTag():
     if request.method == 'GET':
         tag = getAllTags()
@@ -448,7 +447,7 @@ def viewPopularTag():
                 tagsWithoutExtraStuff += [tag[t][0]]
         print(tagsWithoutExtraStuff)
         #return render_template('hello.html', name=flask_login.current_user.id, message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",base64=base64)
-        return render_template('popularTags.html', name=flask_login.current_user.id, message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",tags = tagsWithoutExtraStuff, base64=base64)
+        return render_template('popularTags.html', message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",tags = tagsWithoutExtraStuff, base64=base64)
 		
 @app.route('/createAlbum', methods=['POST', 'GET'])
 @flask_login.login_required

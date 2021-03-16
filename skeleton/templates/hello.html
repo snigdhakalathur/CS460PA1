@@ -34,9 +34,8 @@
     <ul>
     {% for album in albums %}
 
-        <li>{{album[0]}}<br>
-        <a href='/viewAlbumPictures?albumID={{album[1]}}'>VIEW</a>
-
+        <li>
+        <a href='/viewAlbumPictures?albumID={{album[1]}}'>{{album[0]}}</a>
       </li>
     {% endfor %}
     </ul>
@@ -56,6 +55,7 @@
 <li><a href='/viewAlbums'>View All Albums</a></li>
 <li><a href='/viewYourAlbums'>View Your Albums</a></li>
 <li><a href='/tags'>View Tags!</a> </li>
+<li><a href='/viewPopularTags'>View Popular Tags!</a> </li>
 <li><a href='/reccomendFriends'>Friend Reccomendations!</a> </li>
 <li><a href='/photoRecs'>You May Also Like</a></li>
 <li><a href='/userActivity'>User Activity</a></li>
