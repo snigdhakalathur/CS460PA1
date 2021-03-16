@@ -1,0 +1,53 @@
+<!-- author ben lawson (balawson@bu.edu) -->
+<!doctype html>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
+<title>Photoshare</title>
+
+
+
+
+
+{% if userInfo %}
+<h2>Your User Info:</h2>
+    <ul>
+    
+        <li>First Name: {{userInfo[0][3]}}</li><br>
+        <li>Last Name: {{userInfo[0][4]}}</li><br>
+        <li>Email: {{userInfo[0][1]}}</li><br>
+        <li>DOB: {{userInfo[0][5]}}</li><br>
+        {% if userInfo[0][6] != null %}
+            <li>Hometown: {{userInfo[0][6]}}</li><br>
+        {% endif %}
+        {% if userInfo[0][7] != null %}
+            <li>Gender: {{userInfo[0][7]}}</li><br>
+        {% endif %}
+
+    </ul>
+{% endif %}
+
+{% if message is none %}
+  <p>You should <a href='/login'>login!</a></p>
+{% else %}
+  <p> Go to <a href='/profile'>profile?</a></p>
+{% endif %}
+
+<ul>
+    <li><a href='/'>Home</a></li>
+    <li><a href='/upload'>Upload a photo</a> </li>
+    <li><a href='/friends'>Find and View Friends!</a> </li>
+    <li><a href='/createAlbum'>Create Album</a></li>
+    <li><a href='/viewPhotos'>View All Photos</a></li>
+    <li><a href='/viewYourPhotos'>View Your Photos</a></li>
+    <li><a href='/photoSearch'>Search Photos!</a> </li>
+    <li><a href='/viewAlbums'>View All Albums</a></li>
+    <li><a href='/viewYourAlbums'>View Your Albums</a></li>
+    <li><a href='/tags'>View Tags!</a> </li>
+    <li><a href='/viewPopularTags'>View Popular Tags!</a> </li>
+    <li><a href='/reccomendFriends'>Friend Reccomendations!</a> </li>
+    <li><a href='/photoRecs'>You May Also Like</a></li>
+    <li><a href='/userActivity'>User Activity</a></li>
+    <li><a href='/searchComments'>Search Comments</a></li>
+    <li><a href='/logout'>Logout</a></li>
+    </ul>
