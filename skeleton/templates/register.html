@@ -2,9 +2,13 @@
 <head>
     <title>Create an account!</title>
 </head>
-{%if not supress%}
+{% if message %}
+  <li>{{message}}</li>
+{% endif %}
+{% if email %}
 <h1> Email already in use! Use another one or <a href="/login">login</a></h1>
 {% endif %}
+
     <body>
         <div class="title">
             <h1>Enter your information below</h1>
@@ -15,11 +19,11 @@
                 <input type="email" name="email" /><br />
                 <label for="password">Enter password:</label>
                 <input type="password" name="password" /><br />
-                <label for="first_name">Enter your first name(optional):</label>
+                <label for="first_name">Enter your first name:</label>
                 <input type="text" name="first_name" /><br />
-                <label for="last_name">Enter your last name(optional):</label>
+                <label for="last_name">Enter your last name:</label>
                 <input type="text" name="last_name" /><br />
-                <label for="dob">Enter your date of birth(optional):</label>
+                <label for="dob">Enter your date of birth:</label>
                 <input type="date" name="dob" /><br />
                 <label for="hometown">Enter your hometown(optional):</label>
                 <input type="text" name="hometown" /><br />

@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'slkjflksdjf'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'ilwejri'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -123,10 +123,19 @@ def register():
 def register_user():
     try:
         email=request.form.get('email')
+        
         password=request.form.get('password')
-        first_name=request.form.get('first_name') 
-        last_name = request.form.get('last_name') 
+        if len(password)==0:
+                return render_template("register.html", message = "Enter a password")
+        first_name=request.form.get('first_name')
+        if len(first_name)==0:
+                return render_template("register.html", message = "Enter a first name")
+        last_name = request.form.get('last_name')
+        if len(last_name)==0:
+                return render_template("register.html", message = "Enter a last name")
         dob = request.form.get('dob')
+        if len(dob)==0:
+                return render_template("register.html", message = "Enter a date of birth")
         hometown = request.form.get('hometown') 
         gender = request.form.get('gender')
         print("broke below this line")
@@ -135,6 +144,7 @@ def register_user():
     except:
         print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
         return flask.redirect(flask.url_for('register'))
+        
     cursor = conn.cursor()
     test =  isEmailUnique(email)
     if test:
@@ -151,7 +161,7 @@ def register_user():
         return render_template('hello.html', name=email, message='Account Created!')
     else:
         print("couldn't find all tokens")
-        return flask.redirect(flask.url_for('register'))
+        return render_template("register.html", message = "Please enter a valid email")
 
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
