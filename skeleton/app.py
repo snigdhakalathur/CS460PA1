@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'sdf'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'sdfds'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -198,7 +198,7 @@ def getUsersPhotosByTag(uid, tagDescription):
 #GET THE POPULAR TAGS
 def getAllTags():
 	cursor = conn.cursor()
-	cursor.execute("SELECT taggedWith.tagDescription FROM taggedWith GROUP BY taggedwith.tagDescription ORDER BY COUNT(*) DESC LIMIT 3")
+	cursor.execute("SELECT taggedWith.tagDescription FROM taggedWith GROUP BY taggedwith.tagDescription ORDER BY COUNT(*) DESC")
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 #GET ALL THE PICTURES
