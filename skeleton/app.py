@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'sdfds'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'slkdjfkldsjkfs'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -544,7 +544,9 @@ def reccomendFriends():
         cursor = conn.cursor()
         cursor.execute("SELECT t2.userID2, count(*), u.email FROM FriendsWith t1 INNER JOIN FriendsWith t2 ON t2.userID1 = t1.userID2 and t2.userID2 != t1.userID1 INNER JOIN Users u on t2.userID2 = u.user_id WHERE t1.userID1 = {0} and t1.userID2 and t2.userID2 NOT IN (Select t3.userID2 from friendsWith t3 where t3.userID1 = {1}) GROUP BY t2.userId2, u.email ORDER BY count(*) desc, userId2".format(uid, uid))
         recs = cursor.fetchall()
-        
+        if len(recs) == 0:
+                recs = []
+                
         print(recs)
         #cursor.execute("DELETE FROM taggedWith WHERE taggedWith.photoID = {0}".format(photoID))
         #photos =  photos.encode("utf-8")
