@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS photoshare3;
-USE photoshare3;
+CREATE DATABASE IF NOT EXISTS photoshare4;
+USE photoshare4;
 DROP TABLE IF EXISTS Pictures CASCADE;
 DROP TABLE IF EXISTS Users CASCADE;
 
@@ -86,22 +86,6 @@ CREATE TABLE Comments(
 	REFERENCES Pictures (picture_id)
     );
 
-
-INSERT INTO Users (email, password) VALUES ('test@bu.edu', 'test');
-INSERT INTO Users (email, password) VALUES ('test1@bu.edu', 'test');
-INSERT INTO Albums (albumID, albumName) VALUES ('1', 'firstAlbum');
-
-INSERT INTO `photoshare2`.`Tags` (`tagDescription`) VALUES ('Elmo');
-INSERT INTO `photoshare2`.`Tags` (`tagDescription`) VALUES ('ElmoFire');
-INSERT INTO `photoshare2`.`Tags` (`tagDescription`) VALUES ('Woke');
-
-INSERT INTO `photoshare2`.`taggedWith` (`photoID`, `tagDescription`) VALUES ('1', 'Elmo');
-INSERT INTO `photoshare2`.`taggedWith` (`photoID`, `tagDescription`) VALUES ('2', 'Woke');
-INSERT INTO `photoshare2`.`taggedWith` (`photoID`, `tagDescription`) VALUES ('1', 'ElmoFire');
-INSERT INTO `photoshare2`.`taggedWith` (`photoID`, `tagDescription`) VALUES ('1', 'Woke');
-
-INSERT INTO `photoshare2`.`Albums` (`albumName`) VALUES ('secondAlbum');
-INSERT INTO `photoshare2`.`Albums` (`albumName`) VALUES ('thirdAlbum');
 
 
 
