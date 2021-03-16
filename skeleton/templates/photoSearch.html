@@ -25,7 +25,8 @@
         <li>{{photo[2]}}<br>
         <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}' width='600'/><br>
         <a href='/like?photoID={{photo[1]}}'>LIKE</a><br>
-        <a href='/viewLikes?photoID={{photo[1]}}'>View Likes</a>
+        <a href='/viewLikes?photoID={{photo[1]}}'>View Likes</a><br>
+        <a href='/comments?photoID={{photo[1]}}'>Comment</a><br>
       </li>
     {% endfor %}
     </ul>
