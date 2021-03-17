@@ -679,7 +679,7 @@ def photoSearch():
 			for i in pics:
 				res.append(i[0])
 			print("RESRES", res)
-			return render_template('photoSearch.html', message='Photo Search Dashboard', photos = getAllPhotosByPhotoIDS(res), base64=base64)
+			return render_template('photoSearch.html', message='Photo Search Dashboard', photos = getAllPhotosByPhotoIDS1(res), base64=base64)
 		else:
 			return render_template('photoSearch.html', message='Photo Search Dashboard', photos = [], base64=base64)
 
@@ -759,7 +759,7 @@ def photoRecs():
 			for i in pids:
 				res2.append(i[0])
 			
-			return render_template('photoRecs.html', message='You May Also Like Dashboard', photos = getAllPhotosByPhotoIDS(res2),  base64=base64)	
+			return render_template('photoRecs.html', message='You May Also Like Dashboard', photos = getAllPhotosByPhotoIDS(res2, uid),  base64=base64)	
 		else:
 			return render_template('photoRecs.html', message='You May Also Like Dashboard', photos = [],  base64=base64)	
 
