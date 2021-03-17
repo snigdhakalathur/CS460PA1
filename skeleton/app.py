@@ -305,7 +305,24 @@ def searchPhotosByTag(tag):
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 #GET ALL PHOTOS BY PHOTOID
-def getAllPhotosByPhotoIDS(ids):
+def getAllPhotosByPhotoIDS(ids, uid):
+	cursor = conn.cursor()
+	if (ids == []):
+		return []
+	acc =[]
+	for num in ids:
+		sql = "SELECT user_id FROM Pictures WHERE picture_id = {0}".format(num)
+		cursor.execute(sql)
+		photoOwner = cursor.fetchone()[0]
+		if photoOwner != uid:
+			sql = "SELECT imgdata, picture_id, caption FROM Pictures WHERE picture_id = {0}".format(num)
+			print(sql)
+			cursor.execute(sql)
+		acc += cursor.fetchall()
+	
+	return acc 
+
+def getAllPhotosByPhotoIDS1(ids):
 	cursor = conn.cursor()
 	if (ids == []):
 		return []
