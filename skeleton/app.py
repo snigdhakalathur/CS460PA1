@@ -309,14 +309,14 @@ def getAllPhotosByPhotoIDS(ids):
 	cursor = conn.cursor()
 	if (ids == []):
 		return []
-	acc = ""
+	acc =[]
 	for num in ids:
-		acc += "'" + str(num) + "',"
-	acc = acc[:-1]
-	sql = "SELECT imgdata, picture_id, caption FROM Pictures WHERE picture_id in ({0})".format(acc)
-	print(sql)
-	cursor.execute(sql)
-	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+		sql = "SELECT imgdata, picture_id, caption FROM Pictures WHERE picture_id = {0}".format(num)
+		print(sql)
+		cursor.execute(sql)
+		acc += cursor.fetchall()
+	
+	return acc 
 
 #GET ALL TAG DESCRIPTIONS
 def getAllTagDescriptions():
